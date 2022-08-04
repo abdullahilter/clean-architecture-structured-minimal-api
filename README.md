@@ -3,6 +3,7 @@
 ## Index
 - FastEndpoints
 - FastEndpoints.Swagger
+- FluentValidation
 - Microsoft.EntityFrameworkCore.InMemory
 - Serilog.AspNetCore
 - ValueOf
