@@ -25,16 +25,7 @@ var app = builder.Build();
 
 app.UseMiddleware<ExceptionMiddleware>();
 
-app.UseFastEndpoints(x =>
-{
-    x.Errors.ResponseBuilder = (failures, _) =>
-    {
-        return new ValidationFailureResponse
-        {
-            Errors = failures.Select(y => y.ErrorMessage).ToList()
-        };
-    };
-});
+app.UseFastEndpoints();
 
 app.UseOpenApi();
 app.UseSwaggerUi3(s => s.ConfigureDefaults());
