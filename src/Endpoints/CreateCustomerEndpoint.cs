@@ -23,7 +23,10 @@ public class CreateCustomerEndpoint : Endpoint<CreateCustomerRequest, CustomerRe
         await _customerService.CreateAsync(customer);
 
         var customerResponse = customer.ToCustomerResponse();
-        await SendCreatedAtAsync<GetCustomerEndpoint>(
-            new { Id = customer.Id.Value }, customerResponse, generateAbsoluteUrl: true, cancellation: cancellationToken);
+        await SendCreatedAtAsync<CreateCustomerEndpoint>(
+            routeValues: new { Id = customer.Id.Value },
+            responseBody: customerResponse,
+            generateAbsoluteUrl: true,
+            cancellation: cancellationToken);
     }
 }

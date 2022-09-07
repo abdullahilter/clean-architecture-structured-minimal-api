@@ -1,5 +1,6 @@
-﻿using api.customer.Contracts.Responses;
+﻿using api.customer.Validations;
 using FluentValidation;
+using Microsoft.AspNetCore.Mvc;
 using System.Net;
 
 namespace api.customer.Middlewares;
@@ -23,24 +24,27 @@ public class ExceptionMiddleware
         }
         catch (ValidationException exception)
         {
-            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            _logger.LogError(exception, exception.ToString());
 
-            var validationFailureResponse = new ValidationFailureResponse
+            context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
+            var error = exception.ToProblemDetails();
+            await context.Response.WriteAsJsonAsync(error);
+        }
+        catch (Exception exception)
+        {
+            _logger.LogError(exception, exception.ToString());
+
+            context.Response.StatusCode = 500;
+            var problem = new ProblemDetails
             {
-                Errors = exception.Errors.Select(x => x.ErrorMessage).ToList()
+                Type = "https://tools.ietf.org/html/rfc7231#section-6.6.1",
+                Title = "An error occured while processing your request.", //exception.Message
+                Instance = context.Request.Path,
+                Status = (int)HttpStatusCode.InternalServerError,
+                Detail = exception.Message //exception.StackTrace
             };
 
-            _logger.LogError(exception, string.Join(", ", validationFailureResponse.Errors));
-
-            await context.Response.WriteAsJsonAsync(validationFailureResponse);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, ex.Message);
-
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-
-            await context.Response.WriteAsync(HttpStatusCode.InternalServerError.ToString());
+            await context.Response.WriteAsJsonAsync(problem);
         }
     }
 }

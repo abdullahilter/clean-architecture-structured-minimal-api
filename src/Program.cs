@@ -27,7 +27,7 @@ app.UseMiddleware<ExceptionMiddleware>();
 
 app.UseFastEndpoints(x =>
 {
-    x.ErrorResponseBuilder = (failures, _) =>
+    x.Errors.ResponseBuilder = (failures, _) =>
     {
         return new ValidationFailureResponse
         {
